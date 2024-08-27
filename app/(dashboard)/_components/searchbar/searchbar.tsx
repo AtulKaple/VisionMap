@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 
 const SearchBar = () => {
    const router = useRouter();
-    const [value, setValue] = useDebounceValue("", 500);
+    const [value, setValue] = useDebounceValue("", 1);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setValue(e.target.value);
