@@ -8,6 +8,7 @@ import BoardCard from "../boardCard/boardCard";
 import NewBoardButton from "../boardCard/newBoardButton";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { useParams, useSearchParams } from "next/navigation";
 
 interface BoardListProps {
   orgId: string;
@@ -24,13 +25,24 @@ const BoardList = ({ orgId, query }: BoardListProps) => {
       duration: 1,
     });
   });
-  const data = useQuery(api.boards.get, { orgId, ...query });
+  
+   const params = useSearchParams();
+    const favorites = params.get("favorites");
+    const search = params.get("search");
+
+    query.favorites = favorites ? favorites : "";
+    query.search = search ? search : "";
+
+    const data = useQuery(api.boards.get, {
+        orgId,
+        ...query
+    });
 
   if (data === undefined) {
     return (
       <div className="board">
         <h2 className=" text-3xl">
-          {query.favorites ? "Favorite Boards" : "Team Boards"}
+          {favorites ? "Favorite Boards" : "Team Boards"}
         </h2>
         <div
           className="grid grid-cols-1 sm:grid-cols-2 md-grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
@@ -46,11 +58,11 @@ const BoardList = ({ orgId, query }: BoardListProps) => {
     );
   }
 
-  if (!data.length && query.search) {
+  if (!data.length && search) {
     return <EmptySearch />;
   }
 
-  if (!data.length && query.favorites) {
+  if (!data.length && favorites) {
     return <EmptyFavorites />;
   }
 
@@ -61,7 +73,7 @@ const BoardList = ({ orgId, query }: BoardListProps) => {
   return (
     <div className="board">
       <h2 className=" text-3xl">
-        {query.favorites ? "Favorite Boards" : "Team Boards"}
+        {favorites ? "Favorite Boards" : "Team Boards"}
       </h2>
       <div
         className=" grid grid-cols-1 sm:grid-cols-2 md-grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6
