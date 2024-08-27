@@ -8,27 +8,66 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 
 const SearchBar = () => {
-  const router = useRouter();
-  const [value, setValue] = useState("");
-  const [debouncedValue] = useDebounceValue(value, 500);
+   const router = useRouter();
+    const [value, setValue] = useDebounceValue("", 500);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
-  };
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setValue(e.target.value);
+    };
 
-  useEffect(() => {
-    const url = qs.stringifyUrl(
-      {
-        url: "/",
-        query: {
-          search: debouncedValue,
-        },
-      },
-      { skipEmptyString: true, skipNull: true }
-    );
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "f" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                const input = document.querySelector("input");
+                input?.focus();
+            }
+        };
 
-    router.push(url);
-  }, [debouncedValue, router]);
+        document.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, []);
+
+    useEffect(() => {
+        const url = qs.stringifyUrl(
+            {
+                url: "/",
+                query: {
+                    search: value,
+                },
+            },
+            {
+                skipEmptyString: true,
+                skipNull: true,
+            }
+        );
+
+        router.push(url);
+    }, [value, router]);
+  // const router = useRouter();
+  // const [value, setValue] = useState("");
+  // const [debouncedValue] = useDebounceValue(value, 500);
+
+  // const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   setValue(e.target.value);
+  // };
+
+  // useEffect(() => {
+  //   const url = qs.stringifyUrl(
+  //     {
+  //       url: "/",
+  //       query: {
+  //         search: debouncedValue,
+  //       },
+  //     },
+  //     { skipEmptyString: true, skipNull: true }
+  //   );
+
+  //   router.push(url);
+  // }, [debouncedValue, router]);
 
   return (
     <div className="w-full relative ">
