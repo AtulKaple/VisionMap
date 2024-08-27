@@ -26,12 +26,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <ErrorBoundary>
         <ConvexClientProvider>
           <Toaster />
           <ModalProvider />
           {children}
         </ConvexClientProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
 }
+
+// <StrictMode>
+//   <ErrorBoundary>
+//     <ConvexProvider client={convex}>
+//       <App />
+//     </ConvexProvider>
+//   </ErrorBoundary>
+// </StrictMode>,
