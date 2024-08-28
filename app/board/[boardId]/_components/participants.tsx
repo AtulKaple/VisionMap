@@ -7,6 +7,8 @@ import { connectionIdColor } from "@/lib/utils";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ImageDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Hint from "@/app/(dashboard)/_components/hints/hints";
 
 
 const MAX_SHOWN_USERS = 2;
