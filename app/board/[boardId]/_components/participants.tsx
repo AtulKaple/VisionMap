@@ -6,13 +6,24 @@ import UserAvatar from "./userAvatar";
 import { connectionIdColor } from "@/lib/utils";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { ImageDown } from "lucide-react";
+
 
 const MAX_SHOWN_USERS = 2;
 
-const Participants = () => {
+interface ParticipantsProps {
+  exportAsPng?: () => void;
+}
+
+const Participants = ({exportAsPng}:ParticipantsProps) => {
   const users = useOthers();
   const currentUser = useSelf();
   const hasMoreUsers = users.length > MAX_SHOWN_USERS;
+
+  const TabSeperator = () => {
+  return <div className="text-black px-1.5  hidden lg:flex">|</div>;
+};
+
 
   return (
     <div className="absolute h-12 top-4 right-4 bg-[#C7E9B0] p-3 flex items-center shadow-md rounded-2xl border-solid border-black border-2">
@@ -43,6 +54,12 @@ const Participants = () => {
           />
         )}
       </div>
+      <TabSeperator />
+            <Hint label="Export as PNG" side="bottom" sideOffset={10}>
+                <Button size="icon" variant="board" onClick={exportAsPng} className="hover:bg-transparent hover:text-black">
+                    <ImageDown />
+                </Button>
+            </Hint>
     </div>
   );
 };
