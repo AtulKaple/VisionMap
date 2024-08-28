@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState,useRef } from "react";
 import Info from "./info";
 import Participants from "./participants";
 import Toolbar from "./toolbar";
@@ -41,6 +41,10 @@ import SelectionTools from "./selectionTools";
 import Path from "./path";
 import { useDisableScrollBounce } from "@/hooks/use-disable-scroll-bounce";
 import { useDeleteLayers } from "@/hooks/use-delete-layers";
+import { toPng } from "html-to-image";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 const MAX_LAYERS = 100;
 
@@ -434,10 +438,44 @@ const Canvas = ({ boardId }: CanvasProps) => {
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
+   const svgRef = useRef<SVGSVGElement | null>(null);
+    const data = useQuery(api.board.get, { id: boardId as Id<"boards"> });
+
+    const exportAsPng = () => {
+        if (svgRef.current) {
+            const bbox = svgRef.current.getBBox();
+            const svgClone = svgRef.current.cloneNode(true) as SVGSVGElement;
+
+            svgClone.setAttribute("width", bbox.width.toString());
+            svgClone.setAttribute("height", bbox.height.toString());
+            svgClone.setAttribute(
+                "viewBox",
+                `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`
+            );
+
+            document.body.appendChild(svgClone);
+
+            toPng(svgClone as unknown as HTMLElement)
+                .then((dataUrl) => {
+                    const link = document.createElement("a");
+                    link.href = dataUrl;
+                    link.download = `${data?.title || "download"}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    document.body.removeChild(svgClone);
+                })
+                .catch((error) => {
+                    console.error("Error exporting SVG to PNG", error);
+                    document.body.removeChild(svgClone);
+                });
+        }
+    };
+
   return (
     <main className="h-full w-full relative bg-[#D1A5FC] touch-none  ">
       <Info boardId={boardId} />
-      <Participants />
+      <Participants exportAsPng={exportAsPng} />
       <Toolbar
         canvasState={canvasState}
         setCanvasState={setCanvasState}
@@ -448,6 +486,7 @@ const Canvas = ({ boardId }: CanvasProps) => {
       />
       <SelectionTools camera={camera} setLastUsedColor={setLastUsedColor} />
       <svg
+        ref={svgRef}
         className="min-h-[100vh] w-[100vw]"
         onWheel={onWheel}
         onPointerMove={onPointerMove}
